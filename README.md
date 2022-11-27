@@ -11,4 +11,3 @@ $$n_\infty = \frac{\alpha}{\alpha + \beta}$$
 $$\hspace{1cm}$$
 $$n = n_\infty(1-e^{\frac{-t}{\tau}})$$
 $$I_k = \hat{g}_k * n^4(1-e^{\frac{-t}{\tau}})(V-E_k)$$
-
