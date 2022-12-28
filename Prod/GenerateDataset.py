@@ -3,20 +3,20 @@ import numpy as np
 import pandas as pd
 
 
-def alpha_n(V, T):
+def alpha_n(V):
     return (0.01 * (V + 55)) / (1 - np.exp(-0.1 * (V + 55)))
 
 
-def beta_n(V, T):
+def beta_n(V):
     return 0.125 * (np.exp(-0.0125 * ( V + 65 )))
 
 
-def n_inf(V, T):
-    return alpha_n(V, T) / (alpha_n(V, T) + beta_n(V, T))
+def n_inf(V):
+    return alpha_n(V) / (alpha_n(V) + beta_n(V))
 
 
-def tau_n(V, T):
-    return 1 / (alpha_n(V, T) + beta_n(V, T))
+def tau_n(V):
+    return 1 / (alpha_n(V) + beta_n(V))
 
 
 def n_pow_4(n):
@@ -24,7 +24,6 @@ def n_pow_4(n):
 
 dataset = []
 n = 0
-T = 15
 t_total = 100
 VOLTS = np.arange(-90, 90, 10)
 results = []
@@ -35,7 +34,7 @@ results = []
 for V in VOLTS:
     voltage_results = []
     for t in np.arange(0, t_total):
-        n = n_inf(V, T) * (1 - np.exp(-t/tau_n(V,T)))
+        n = n_inf(V) * (1 - np.exp(-t/tau_n(V)))
         y = n_pow_4(n)
         voltage_results.append(y)
         dataset.append((t/1000, V, y))
