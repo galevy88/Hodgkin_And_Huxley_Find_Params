@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
-import torch
+from sklearn.preprocessing import StandardScaler
+
 
 def alpha_n(V, params):
     c1, c2, c3, c4 = params
@@ -25,32 +26,66 @@ def n_pow_4(n):
     result_n =  n ** 4
     return result_n
 
-def loss(params, t, V, y):
+def get_y_hat(params, t, V):
     alpha = alpha_n(V, params[:4])
     beta = beta_n(V, params[4:])
     n_inf_ = n_inf(alpha, beta)
     tau_n_ = tau_n(alpha, beta)
     n = n_inf_ * (1 - np.exp(-t/tau_n_))
     y_hat = n_pow_4(n)
+    return y_hat
+
+def nll_loss(params, t, V, y):
+    epsilon = 0.01
+    y_hat = get_y_hat(params, t, V)
+    y_hat = np.maximum(y_hat, epsilon)
+    loss = -np.mean(y * np.log(y_hat)) / float(y_hat.shape[0])
+    print(loss)
+    return loss 
+
+def l2_loss(params, t, V, y):
+    y_hat = get_y_hat(params, t, V)
+    loss = np.mean((y_hat - y) ** 2)
+    print(loss)
+    return loss
+
+def l1_loss(params, t, V, y):
+    y_hat = get_y_hat(params, t, V)
     loss = np.mean(abs(y_hat - y))
     print(loss)
     return loss
 
+def get_data(path):
+    data = pd.read_csv(path)
+    inputs = data.iloc[:, :-1]
+    t, V = inputs
+    t = inputs.iloc[:,:-1].values
+    V = inputs.iloc[:,-1].values
+    labels = data.iloc[:,-1].values
+    return t, V, labels
 
-data = pd.read_csv('Prod/dataset.csv')
 
-inputs = data.iloc[:, :-1]
-t, V = inputs
-t = inputs.iloc[:,:-1].values
-V = inputs.iloc[:,-1].values
-labels = data.iloc[:,-1].values
+def get_scaled_data(path):
+    data = pd.read_csv(path)
+    data = data.values
+    scaler = StandardScaler()
+    data_standardized = scaler.fit_transform(data)
+    inputs = data_standardized[:, :-1]
+    labels = data_standardized[:, -1]
+    t = inputs[:, :-1]
+    V = inputs[:, -1]
+    return t, V, labels
+
+#t, V, labels = get_data('Prod/dataset.csv')
+t, V, labels = get_scaled_data('Prod/dataset.csv')
 
 #params_init = [0.02, 35, 0.6, 0.6, 0.125, 0.015, 55]
 params_init = np.random.randn(7)
 
-bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 100)]
+#bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 100)]
+bounds = [(-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100)]
 
 # BFGS CG L-BFGS-B Newton-CG TNC Nelder-Mead Powell COBYLA SLSQP trust-constr dogleg trust-ncg trust-exact trust-krylov trust-constr-krylov
-result = minimize(loss, params_init, args=(t, V, labels), method='Newton-CG' ,bounds=bounds)
+result = minimize(nll_loss, params_init, args=(t, V, labels), method='TNC', bounds=bounds)
 
 print(result.x)
