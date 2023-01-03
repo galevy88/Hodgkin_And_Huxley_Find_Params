@@ -6,11 +6,19 @@ from sklearn.preprocessing import StandardScaler
 
 def alpha_n(V, params):
     c1, c2, c3, c4 = params
+    # c1 = 0.01
+    c2 = 55
+    c3 = 0.1
+    c4 = 55
     result_alpha = (c1 * (V + c2)) / (1 - np.exp(-c3 * (V + c4)))
+    #print(f"AAAA{len(result_alpha)}")
     return result_alpha
 
 def beta_n(V, params):
     c5, c6, c7 = params
+    c5 = 0.125
+    c6 = 0.0125
+    c7 = 65
     result_beta = c5 * (np.exp(-c6 * ( V + c7 )))
     return result_beta
 
@@ -44,7 +52,20 @@ def nll_loss(params, t, V, y):
     return loss 
 
 def l2_loss(params, t, V, y):
-    y_hat = get_y_hat(params, t, V)
+    y = np.round(y, 8)
+    y_hat = np.round(get_y_hat(params, t, V), 8)
+    #print(y_hat)
+    # print(pd.Series(y).isna().any())
+    # print(np.where(~(y==y))[0])
+    #print(np.where((y_hat == float("inf")))[0])
+    # print(y_hat)
+    # print(y)
+    #print(np.where(~(y_hat==y))[0])
+    # for i in range(len(y)):
+    #     print(f"Y_HAT[{i}] : {y_hat[i]}")
+    #     print(f"Y    [{i}] : {y[i]}")
+    #     if y_hat[i] == y[i]: print("EQUAL")
+    #     else: print("NOT EQUAL")
     loss = np.mean((y_hat - y) ** 2)
     print(loss)
     return loss
@@ -59,9 +80,9 @@ def get_data(path):
     data = pd.read_csv(path)
     inputs = data.iloc[:, :-1]
     t, V = inputs
-    t = inputs.iloc[:,:-1].values
-    V = inputs.iloc[:,-1].values
-    labels = data.iloc[:,-1].values
+    t = inputs.iloc[:,0].values
+    V = inputs.iloc[:,1].values
+    labels = data.iloc[:,2].values
     return t, V, labels
 
 
@@ -76,16 +97,17 @@ def get_scaled_data(path):
     V = inputs[:, -1]
     return t, V, labels
 
-#t, V, labels = get_data('Prod/dataset.csv')
-t, V, labels = get_scaled_data('Prod/dataset.csv')
+t, V, labels = get_data('Prod/dataset.csv')
+#t, V, labels = get_scaled_data('Prod/dataset.csv')
 
-#params_init = [0.02, 35, 0.6, 0.6, 0.125, 0.015, 55]
-params_init = np.random.randn(7)
+c1 = np.random.randn(1)
+params_init = [c1, 55, 0.1, 55, 0.125, 0.0125, 65]
+#params_init = np.random.randn(7)
 
-#bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 100)]
-bounds = [(-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100)]
+bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 100)]
+#bounds = [(-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100)]
 
 # BFGS CG L-BFGS-B Newton-CG TNC Nelder-Mead Powell COBYLA SLSQP trust-constr dogleg trust-ncg trust-exact trust-krylov trust-constr-krylov
-result = minimize(nll_loss, params_init, args=(t, V, labels), method='TNC', bounds=bounds)
+result = minimize(l2_loss, params_init, args=(t, V, labels), method='Nelder-Mead', bounds=bounds)
 
 print(result.x)
