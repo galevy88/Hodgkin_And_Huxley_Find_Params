@@ -1,6 +1,6 @@
 import numpy as np
 from ypstruct import structure
-
+import time
 def run(problem, params):
     
     # Problem Information
@@ -17,9 +17,9 @@ def run(problem, params):
     beta = params.beta
     pc = params.pc
     nc = int(np.round(pc*npop/2)*2)
-    gamma = params.gamma
     mu = params.mu
     sigma = params.sigma
+    sigma_200 = params.sigma_200
 
     # Empty Individual Template
     empty_individual = structure()
@@ -50,6 +50,7 @@ def run(problem, params):
         if avg_cost != 0:
             costs = costs/avg_cost
         probs = np.exp(-beta*costs)
+        print(f"probs {len(probs)}")
 
         popc = []
         for k in range(nc//2):
@@ -61,14 +62,19 @@ def run(problem, params):
 
             # Perform Roulette Wheel Selection
             p1 = pop[roulette_wheel_selection(probs)]
+            # print(f"p1: {len(p1)}")
             p2 = pop[roulette_wheel_selection(probs)]
             
             # Perform Crossover
             c1, c2 = crossover(p1, p2, update_vec)
 
             # Perform Mutation
-            c1 = mutate(c1, mu, sigma)
-            c2 = mutate(c2, mu, sigma)
+            if it < 200:
+                c1 = mutate(c1, mu, sigma)
+                c2 = mutate(c2, mu, sigma)
+            else:
+                c1 = mutate(c1, mu, sigma_200)
+                c2 = mutate(c2, mu, sigma_200)
 
             # Apply Bounds
             apply_bound(c1, varmin, varmax)
@@ -119,6 +125,7 @@ def crossover(p1, p2, update_vec):
     c2 = p1.deepcopy()
     alpha = [np.random.uniform(low, high) for (low, high) in update_vec]
     alpha = np.array(alpha)
+    # print(f"alpha {alpha}")
     c1.position = alpha*p1.position + (1-alpha)*p2.position
     c2.position = alpha*p2.position + (1-alpha)*p1.position
     return c1, c2
@@ -127,7 +134,7 @@ def mutate(x, mu, sigma):
     y = x.deepcopy()
     flag = np.random.rand(*x.position.shape) <= mu
     ind = np.argwhere(flag)
-    y.position[ind] += sigma*np.random.randn(*ind.shape)
+    y.position[ind] += sigma[ind] * np.random.randn(*ind.shape)
     return y
 
 def apply_bound(x, varmin, varmax):
@@ -135,7 +142,11 @@ def apply_bound(x, varmin, varmax):
     x.position = np.minimum(x.position, varmax)
 
 def roulette_wheel_selection(p):
+    #print(f"probs {p}")
     c = np.cumsum(p)
     r = sum(p)*np.random.rand()
     ind = np.argwhere(r <= c)
+    #t = time.time()
+    #print(f"lenind {len(ind[0][0])}")
+    #print(f"time: {t} ind: {ind[0][0]}")
     return ind[0][0]

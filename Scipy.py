@@ -6,19 +6,11 @@ from sklearn.preprocessing import StandardScaler
 
 def alpha_n(V, params):
     c1, c2, c3, c4 = params
-    # c1 = 0.01
-    c2 = 55
-    c3 = 0.1
-    c4 = 55
     result_alpha = (c1 * (V + c2)) / (1 - np.exp(-c3 * (V + c4)))
-    #print(f"AAAA{len(result_alpha)}")
     return result_alpha
 
 def beta_n(V, params):
     c5, c6, c7 = params
-    c5 = 0.125
-    c6 = 0.0125
-    c7 = 65
     result_beta = c5 * (np.exp(-c6 * ( V + c7 )))
     return result_beta
 
@@ -100,14 +92,15 @@ def get_scaled_data(path):
 t, V, labels = get_data('Prod/dataset.csv')
 #t, V, labels = get_scaled_data('Prod/dataset.csv')
 
-c1 = np.random.randn(1)
-params_init = [c1, 55, 0.1, 55, 0.125, 0.0125, 65]
+# c1 = np.random.randn(1)
+# params_init = [c1, 55, 0.1, 55, 0.125, 0.0125, 65]
+constants = np.array([0.028, 67.07, 0.774, 72.43, 0.325, 0.0124, 30.85])
 #params_init = np.random.randn(7)
 
 bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 100)]
 #bounds = [(-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100)]
 
 # BFGS CG L-BFGS-B Newton-CG TNC Nelder-Mead Powell COBYLA SLSQP trust-constr dogleg trust-ncg trust-exact trust-krylov trust-constr-krylov
-result = minimize(l2_loss, params_init, args=(t, V, labels), method='Nelder-Mead', bounds=bounds)
+result = minimize(l2_loss, constants, args=(t, V, labels), method='Nelder-Mead', bounds=bounds)
 
 print(result.x)

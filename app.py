@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from ypstruct import structure
 import ga
 from sklearn.preprocessing import StandardScaler
-
+import multiprocessing as mp
 easy_varmin = [-100,  -100, -100, -100, -100, -100, -100,  4]
 easy_varmax = [ 100,  100,  100, 100,  100,  100, 100, 4]
 medium_varmin = [-1,    0, -1,   0, -1, -1,   0,  4]
@@ -15,7 +15,8 @@ extreme_varmax = [0.011,  55.1,  0.11, 55.1, 0.126, 0.0126, 65.1, 4]
 
 easy_gamma = [[-0.001, 0.001], [-0.01, 0.01], [-0.001, 0.001], [-0.01, 0.01], [-0.001, 0.001], [-0.001, 0.001], [-0.01, 0.01], [-0.001, 0.001]]
 medium_gamma = [[-0.01, 0.01], [-0.1, 0.1], [-0.01, 0.01], [-0.1, 0.1], [-0.01, 0.01], [-0.01, 0.01], [-0.1, 0.1], [-0.01, 0.01]]
-extreme_gamma = [[-0.1, 0.1], [-1, 1], [-0.1, 0.1], [-1, 1], [-0.1, 0.1], [-0.1, 0.1], [-1, 1], [-0.1, 0.1]]
+#extreme_gamma = [[-0.1, 0.1], [-1, 1], [-0.1, 0.1], [-1, 1], [-0.1, 0.1], [-0.1, 0.1], [-1, 1], [-0.1, 0.1]]
+extreme_gamma = [[0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1]]
 
 def get_data(path):
     data = pd.read_csv(path)
@@ -103,17 +104,17 @@ problem.costfunc = l2_loss
 problem.nvar = 8
 problem.varmin = medium_varmin
 problem.varmax = medium_varmax
-problem.update_vec = easy_gamma
+problem.update_vec = extreme_gamma
 
 # GA Parameters
 params = structure()
-params.maxit = 500
-params.npop = 200
+params.maxit = 1000
+params.npop = 50
 params.beta = 1
 params.pc = 1
-params.gamma = 0.1
-params.mu = 1
-params.sigma = 0.2
+params.mu = 0.2
+params.sigma = np.array([0.2, 4, 0.2, 4, 0.2, 0.2 , 4, 0.2])
+params.sigma_200 = np.array([0.02, 0.4, 0.02, 0.4, 0.02, 0.02 , 0.4, 0.02])
 
 # Run GA
 out = ga.run(problem, params)

@@ -72,7 +72,8 @@ def train_model(model, optimizer, nepochs, inputs, labels):
         print("Epoch: {}/{}.. ".format(e+1, nepochs), "Training Loss: {:.3f} ".format(running_loss/len(inputs)))
 
 #constants = torch.tensor([0.03,51,-0.3,45,0.185,-0.0225,55])
-constants = torch.tensor(torch.randn(7))
+constants = torch.tensor([0.028, 67.07, 0.774, 72.43, 0.325, 0.0124, 30.85])
+#constants = torch.tensor(torch.randn(7))
 
 model = Model(constants)
 
