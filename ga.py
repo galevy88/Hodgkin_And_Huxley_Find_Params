@@ -19,7 +19,12 @@ def run(problem, params):
     nc = int(np.round(pc*npop/2)*2)
     mu = params.mu
     sigma = params.sigma
+    sigma_100 = params.sigma_100
     sigma_200 = params.sigma_200
+    sigma_300 = params.sigma_300
+    sigma_400 = params.sigma_400
+    sigma_500 = params.sigma_500
+    sigma_600 = params.sigma_600
 
     # Empty Individual Template
     empty_individual = structure()
@@ -69,12 +74,27 @@ def run(problem, params):
             c1, c2 = crossover(p1, p2, update_vec)
 
             # Perform Mutation
-            if it < 200:
-                c1 = mutate(c1, mu, sigma)
-                c2 = mutate(c2, mu, sigma)
-            else:
-                c1 = mutate(c1, mu, sigma_200)
-                c2 = mutate(c2, mu, sigma_200)
+            #if it < 100:
+            c1 = mutate(c1, mu, sigma)
+            c2 = mutate(c2, mu, sigma)
+            # elif 100 < it < 200:
+            #     c1 = mutate(c1, mu, sigma_100)
+            #     c2 = mutate(c2, mu, sigma_100)
+            # elif 200 < it < 300:
+            #     c1 = mutate(c1, mu, sigma_200)
+            #     c2 = mutate(c2, mu, sigma_200)
+            # elif 300 < it < 400:
+            #     c1 = mutate(c1, mu, sigma_300)
+            #     c2 = mutate(c2, mu, sigma_300)
+            # elif 400 < it < 500:
+            #     c1 = mutate(c1, mu, sigma_400)
+            #     c2 = mutate(c2, mu, sigma_400)
+            # elif 500 < it < 600:
+            #     c1 = mutate(c1, mu, sigma_500)
+            #     c2 = mutate(c2, mu, sigma_500)
+            # else:
+            #     c1 = mutate(c1, mu, sigma_600)
+            #     c2 = mutate(c2, mu, sigma_600)
 
             # Apply Bounds
             apply_bound(c1, varmin, varmax)
@@ -134,7 +154,7 @@ def mutate(x, mu, sigma):
     y = x.deepcopy()
     flag = np.random.rand(*x.position.shape) <= mu
     ind = np.argwhere(flag)
-    y.position[ind] += sigma[ind] * np.random.randn(*ind.shape)
+    y.position[ind] += sigma[ind] * np.random.randn(*ind.shape) * np.random.randn(*ind.shape)
     return y
 
 def apply_bound(x, varmin, varmax):

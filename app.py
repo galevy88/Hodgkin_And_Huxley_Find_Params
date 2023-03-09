@@ -114,7 +114,12 @@ params.beta = 1
 params.pc = 1
 params.mu = 0.2
 params.sigma = np.array([0.2, 4, 0.2, 4, 0.2, 0.2 , 4, 0.2])
-params.sigma_200 = np.array([0.02, 0.4, 0.02, 0.4, 0.02, 0.02 , 0.4, 0.02])
+# params.sigma_100 = np.array([0.1, 2, 0.1, 2, 0.1, 0.1 , 2, 0.1])
+# params.sigma_200 = np.array([0.05, 1, 0.05, 1, 0.05, 0.05 , 1, 0.05])
+# params.sigma_300 = np.array([0.02, 0.5, 0.02, 0.5, 0.02, 0.02 , 0.5, 0.02])
+# params.sigma_400 = np.array([0.01, 0.25, 0.01, 0.25, 0.01, 0.01 , 0.25, 0.01])
+# params.sigma_500 = np.array([0.005, 0.1, 0.005, 0.1, 0.005, 0.005 , 0.1, 0.005])
+# params.sigma_600 = np.array([0.0001, 0.1, 0.0001, 0.1, 0.0001, 0.0001 , 0.1, 0.0001])
 
 # Run GA
 out = ga.run(problem, params)

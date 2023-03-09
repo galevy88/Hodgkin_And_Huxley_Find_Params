@@ -101,6 +101,6 @@ bounds = [(-3, 3), (-100, 100), (-3, 3), (-100, 100), (-3, 3), (-3, 3), (-100, 1
 #bounds = [(-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100), (-100, 100)]
 
 # BFGS CG L-BFGS-B Newton-CG TNC Nelder-Mead Powell COBYLA SLSQP trust-constr dogleg trust-ncg trust-exact trust-krylov trust-constr-krylov
-result = minimize(l2_loss, constants, args=(t, V, labels), method='Nelder-Mead', bounds=bounds)
+result = minimize(nll_loss, constants, args=(t, V, labels), method='Nelder-Mead', bounds=bounds)
 
 print(result.x)
