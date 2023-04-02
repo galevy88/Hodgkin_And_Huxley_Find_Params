@@ -2,24 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
-#0.02  77.57   0.89  74.36   0.63   0.02  59.37
-# 0.0391410102, 22.9661865, 0.0827730291, 23.1195017, 0.138455123, 0.00375563907, 82.4240423
 def alpha_n(V):
-    result_alpha = (0.039 * (V + 22.9)) / (1 - np.exp(-0.08 * (V + 23.11)))
+    result_alpha = (0.01 * (V + 55)) / (1 - np.exp(-0.1 * (V + 55)))
     return result_alpha
 
 def beta_n(V):
-    result_beta = 0.13 * (np.exp(-0.003 * ( V + 82 )))
+    result_beta = 0.125 * (np.exp(-0.0125 * ( V + 65 )))
     return result_beta
-
-# def alpha_n(V):
-#     result_alpha = (0.01 * (V + 55)) / (1 - np.exp(-0.1 * (V + 55)))
-#     return result_alpha
-
-# def beta_n(V):
-#     result_beta = 0.125 * (np.exp(-0.0125 * ( V + 65 )))
-#     return result_beta
 
 def n_inf(alpha, beta):
     result_n_inf =  alpha / (alpha + beta)

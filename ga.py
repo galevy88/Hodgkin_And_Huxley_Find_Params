@@ -1,6 +1,7 @@
 import numpy as np
+import ga_functions
 from ypstruct import structure
-import time
+
 def run(problem, params):
     
     # Problem Information
@@ -19,12 +20,6 @@ def run(problem, params):
     nc = int(np.round(pc*npop/2)*2)
     mu = params.mu
     sigma = params.sigma
-    sigma_100 = params.sigma_100
-    sigma_200 = params.sigma_200
-    sigma_300 = params.sigma_300
-    sigma_400 = params.sigma_400
-    sigma_500 = params.sigma_500
-    sigma_600 = params.sigma_600
 
     # Empty Individual Template
     empty_individual = structure()
@@ -49,68 +44,33 @@ def run(problem, params):
     
     # Main Loop
     for it in range(maxit):
-
         costs = np.array([x.cost for x in pop])
         avg_cost = np.mean(costs)
         if avg_cost != 0:
             costs = costs/avg_cost
         probs = np.exp(-beta*costs)
-        print(f"probs {len(probs)}")
 
         popc = []
-        for k in range(nc//2):
+        for _ in range(nc//2):
+            p1 = pop[ga_functions.roulette_wheel_selection(probs)]
+            p2 = pop[ga_functions.roulette_wheel_selection(probs)]
             
-            # Select Parents
-            # q = np.random.permutation(npop)
-            # p1 = pop[q[0]]
-            # p2 = pop[q[1]]
+            c1, c2 = ga_functions.crossover(p1, p2, update_vec)
 
-            # Perform Roulette Wheel Selection
-            p1 = pop[roulette_wheel_selection(probs)]
-            # print(f"p1: {len(p1)}")
-            p2 = pop[roulette_wheel_selection(probs)]
-            
-            # Perform Crossover
-            c1, c2 = crossover(p1, p2, update_vec)
+            c1 = ga_functions.mutate(c1, mu, sigma)
+            c2 = ga_functions.mutate(c2, mu, sigma)
 
-            # Perform Mutation
-            #if it < 100:
-            c1 = mutate(c1, mu, sigma)
-            c2 = mutate(c2, mu, sigma)
-            # elif 100 < it < 200:
-            #     c1 = mutate(c1, mu, sigma_100)
-            #     c2 = mutate(c2, mu, sigma_100)
-            # elif 200 < it < 300:
-            #     c1 = mutate(c1, mu, sigma_200)
-            #     c2 = mutate(c2, mu, sigma_200)
-            # elif 300 < it < 400:
-            #     c1 = mutate(c1, mu, sigma_300)
-            #     c2 = mutate(c2, mu, sigma_300)
-            # elif 400 < it < 500:
-            #     c1 = mutate(c1, mu, sigma_400)
-            #     c2 = mutate(c2, mu, sigma_400)
-            # elif 500 < it < 600:
-            #     c1 = mutate(c1, mu, sigma_500)
-            #     c2 = mutate(c2, mu, sigma_500)
-            # else:
-            #     c1 = mutate(c1, mu, sigma_600)
-            #     c2 = mutate(c2, mu, sigma_600)
+            ga_functions.apply_bound(c1, varmin, varmax)
+            ga_functions.apply_bound(c2, varmin, varmax)
 
-            # Apply Bounds
-            apply_bound(c1, varmin, varmax)
-            apply_bound(c2, varmin, varmax)
-
-            # Evaluate First Offspring
             c1.cost = costfunc(c1.position)
             if c1.cost < bestsol.cost:
                 bestsol = c1.deepcopy()
 
-            # Evaluate Second Offspring
             c2.cost = costfunc(c2.position)
             if c2.cost < bestsol.cost:
                 bestsol = c2.deepcopy()
 
-            # Add Offsprings to popc
             popc.append(c1)
             popc.append(c2)
         
@@ -122,16 +82,7 @@ def run(problem, params):
         bestcost[it] = bestsol.cost
 
         # Show Iteration Information
-        print(f"First Solution : {bestsol.position}")
-        print(f"Second Solution: {pop[1].position}")
-        print(f"Third  Solution: {pop[2].position}")
-        print(f"Fourth Solution: {pop[3].position}")
-        print(f"Fifth  Solution: {pop[4].position}")
-        print("Iteration {}: First  Cost = {}".format(it, pop[0].cost))
-        print("Iteration {}: Second Cost = {}".format(it, pop[1].cost))
-        print("Iteration {}: Third  Cost = {}".format(it, pop[2].cost))
-        print("Iteration {}: Fourth Cost = {}".format(it, pop[3].cost))
-        print("Iteration {}: Fifth  Cost = {}".format(it, pop[4].cost))
+        ga_functions.print_top_5(bestsol, pop, it)
 
     # Output
     out = structure()
@@ -140,33 +91,3 @@ def run(problem, params):
     out.bestcost = bestcost
     return out
 
-def crossover(p1, p2, update_vec):
-    c1 = p1.deepcopy()
-    c2 = p1.deepcopy()
-    alpha = [np.random.uniform(low, high) for (low, high) in update_vec]
-    alpha = np.array(alpha)
-    # print(f"alpha {alpha}")
-    c1.position = alpha*p1.position + (1-alpha)*p2.position
-    c2.position = alpha*p2.position + (1-alpha)*p1.position
-    return c1, c2
-
-def mutate(x, mu, sigma):
-    y = x.deepcopy()
-    flag = np.random.rand(*x.position.shape) <= mu
-    ind = np.argwhere(flag)
-    y.position[ind] += sigma[ind] * np.random.randn(*ind.shape) * np.random.randn(*ind.shape)
-    return y
-
-def apply_bound(x, varmin, varmax):
-    x.position = np.maximum(x.position, varmin)
-    x.position = np.minimum(x.position, varmax)
-
-def roulette_wheel_selection(p):
-    #print(f"probs {p}")
-    c = np.cumsum(p)
-    r = sum(p)*np.random.rand()
-    ind = np.argwhere(r <= c)
-    #t = time.time()
-    #print(f"lenind {len(ind[0][0])}")
-    #print(f"time: {t} ind: {ind[0][0]}")
-    return ind[0][0]
