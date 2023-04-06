@@ -26,7 +26,7 @@ def get_scaled_data(path):
 
 t, V, labels = get_data('Prod/dataset.csv')
 
-def l2_loss(params, batchSize=256):
+def l2_loss(params, batchSize):
     loss = 0
     indices = random.sample(range(len(t)), batchSize)
     for i in indices:
@@ -39,7 +39,7 @@ def l2_loss(params, batchSize=256):
     return ret_loss
 
 
-def l1_loss(params, batchSize=256):
+def l1_loss(params, batchSize):
     loss = 0
     indices = random.sample(range(len(t)), batchSize)
     for i in indices:

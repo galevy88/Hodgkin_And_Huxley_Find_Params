@@ -37,3 +37,7 @@ def print_top_5(bestsol, pop, it):
         print("Iteration {}: Third  Cost = {}".format(it, pop[2].cost))
         print("Iteration {}: Fourth Cost = {}".format(it, pop[3].cost))
         print("Iteration {}: Fifth  Cost = {}".format(it, pop[4].cost))
+        
+def get_top_5(bestsol, pop):
+    top_5 = [bestsol] + pop[1:5]
+    return [sol.position for sol in top_5], [sol.cost for sol in top_5]

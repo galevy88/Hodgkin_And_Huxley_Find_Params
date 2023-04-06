@@ -1,6 +1,7 @@
 import numpy as np
 import ga_functions
 from ypstruct import structure
+from tqdm import tqdm
 
 def run(problem, params):
     
@@ -10,6 +11,7 @@ def run(problem, params):
     varmin = problem.varmin
     varmax = problem.varmax
     update_vec = problem.update_vec
+    batch_size = problem.batch_size
     
 
     # Parameters
@@ -35,7 +37,7 @@ def run(problem, params):
     pop = empty_individual.repeat(npop)
     for i in range(npop):
         pop[i].position = np.random.uniform(varmin, varmax, nvar)
-        pop[i].cost = costfunc(pop[i].position)
+        pop[i].cost = costfunc(pop[i].position, batch_size)
         if pop[i].cost < bestsol.cost:
             bestsol = pop[i].deepcopy()
 
@@ -43,7 +45,7 @@ def run(problem, params):
     bestcost = np.empty(maxit)
     
     # Main Loop
-    for it in range(maxit):
+    for it in tqdm(range(maxit)):
         costs = np.array([x.cost for x in pop])
         avg_cost = np.mean(costs)
         if avg_cost != 0:
@@ -63,11 +65,11 @@ def run(problem, params):
             ga_functions.apply_bound(c1, varmin, varmax)
             ga_functions.apply_bound(c2, varmin, varmax)
 
-            c1.cost = costfunc(c1.position)
+            c1.cost = costfunc(c1.position, batch_size)
             if c1.cost < bestsol.cost:
                 bestsol = c1.deepcopy()
 
-            c2.cost = costfunc(c2.position)
+            c2.cost = costfunc(c2.position, batch_size)
             if c2.cost < bestsol.cost:
                 bestsol = c2.deepcopy()
 
@@ -82,12 +84,13 @@ def run(problem, params):
         bestcost[it] = bestsol.cost
 
         # Show Iteration Information
-        ga_functions.print_top_5(bestsol, pop, it)
+        # ga_functions.print_top_5(bestsol, pop, it)
 
     # Output
     out = structure()
     out.pop = pop
     out.bestsol = bestsol
+    out.top_5 = ga_functions.get_top_5(bestsol, pop)
     out.bestcost = bestcost
     return out
 
